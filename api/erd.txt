@@ -1,0 +1,208 @@
+// ERD (Entity Relationship Diagram) - E-commerce Application
+
+// ENUMS
+Enum UserRole {
+  user
+  admin
+  staff
+}
+
+Enum OrderStatus {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+Enum PaymentMethod {
+  cod
+  banking
+  momo
+  zalopay
+}
+
+Enum PaymentStatus {
+  pending
+  paid
+  failed
+}
+
+// TABLES
+Table Users {
+  id bigint [primary key]
+  name varchar
+  email varchar [unique]
+  email_verified_at timestamp
+  password varchar
+  phone varchar
+  address text
+  role UserRole [default: 'user']
+  remember_token varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table Categories {
+  id bigint [primary key]
+  name varchar
+  slug varchar
+  description text
+  image varchar
+  parent_id bigint
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: Categories.parent_id > Categories.id
+
+Table Brands {
+  id bigint [primary key]
+  name varchar
+  slug varchar
+  logo varchar
+  description text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table Products {
+  id bigint [primary key]
+  name varchar
+  slug varchar [unique]
+  sku varchar [unique]
+  description text
+  specifications json
+  price decimal(12,2)
+  sale_price decimal(12,2)
+  quantity int [default: 0]
+  featured boolean [default: false]
+  is_new boolean [default: false]
+  active boolean [default: true]
+  category_id bigint
+  brand_id bigint
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: Products.category_id > Categories.id
+Ref: Products.brand_id > Brands.id
+
+Table ProductImages {
+  id bigint [primary key]
+  product_id bigint
+  image varchar
+  is_main boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: ProductImages.product_id > Products.id
+
+Table Orders {
+  id bigint [primary key]
+  user_id bigint
+  total_amount decimal(12,2)
+  status OrderStatus [default: 'pending']
+  payment_method PaymentMethod [default: 'cod']
+  payment_status PaymentStatus [default: 'pending']
+  shipped_address text
+  shipped_phone varchar
+  shipped_name varchar
+  note text
+  tracking_number varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: Orders.user_id > Users.id
+
+Table OrderDetails {
+  id bigint [primary key]
+  order_id bigint
+  product_id bigint
+  quantity int
+  price decimal(12,2)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: OrderDetails.order_id > Orders.id
+Ref: OrderDetails.product_id > Products.id
+
+Table Reviews {
+  id bigint [primary key]
+  user_id bigint
+  product_id bigint
+  rating int
+  comment text
+  status varchar
+  admin_response text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: Reviews.user_id > Users.id
+Ref: Reviews.product_id > Products.id
+
+Table Carts {
+  id bigint [primary key]
+  user_id bigint
+  product_id bigint
+  quantity int
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: Carts.user_id > Users.id
+Ref: Carts.product_id > Products.id
+
+Table Wishlist {
+  id bigint [primary key]
+  user_id bigint
+  product_id bigint
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: Wishlist.user_id > Users.id
+Ref: Wishlist.product_id > Products.id
+
+Table ChatbotConversations {
+  id bigint [primary key]
+  user_id bigint
+  session_id varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: ChatbotConversations.user_id > Users.id
+
+Table ChatbotMessages {
+  id bigint [primary key]
+  conversation_id bigint
+  message text
+  is_bot boolean
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: ChatbotMessages.conversation_id > ChatbotConversations.id
+
+Table ChatbotResponses {
+  id bigint [primary key]
+  keyword varchar
+  response text
+  priority int
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table Settings {
+  id bigint [primary key]
+  key varchar
+  value text
+  group varchar
+  created_at timestamp
+  updated_at timestamp
+} 
